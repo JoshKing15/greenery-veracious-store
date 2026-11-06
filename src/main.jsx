@@ -24,11 +24,12 @@ const photos=[
  {src:'/oil-in-hand.webp',label:'In hand',alt:'Greenery Veracious oil held in a hand with a blush-pink manicure'}
 ];
 const chat=text=>`https://wa.me/${SHOP.whatsapp}?text=${encodeURIComponent(text)}`;
-const orderLink=qty=>chat([
+const orderLink=(qty,name,deliveryArea)=>chat([
  'Hello Greenery Veracious! I’d like to enquire about an order.',
  `${qty} × ${SHOP.name}`,
  `Product subtotal: R${qty*SHOP.price} (delivery excluded)`,
- 'Delivery suburb or postcode: ',
+ `Name: ${name}`,
+ `Delivery suburb or postcode: ${deliveryArea}`,
  'Please confirm stock, delivery cost and payment instructions.'
 ].join('\n'));
 const askLink=chat('Hello Greenery Veracious! I have a question about the multipurpose oil: ');
@@ -36,6 +37,20 @@ const askLink=chat('Hello Greenery Veracious! I have a question about the multip
 function App(){
  const [qty,setQty]=useState(1),[shot,setShot]=useState(0),[showBar,setShowBar]=useState(false);
  const cta=useRef(null);
+ const orderDialog=useRef(null);
+
+ function openOrder(){
+  orderDialog.current.showModal();
+ }
+
+ function continueOrder(event){
+  event.preventDefault();
+  const details=new FormData(event.currentTarget);
+  const name=details.get('name').trim();
+  const deliveryArea=details.get('deliveryArea').trim();
+  window.location.assign(orderLink(qty,name,deliveryArea));
+ }
+
  useEffect(()=>{
   const el=cta.current;
   if(!el||!('IntersectionObserver' in window))return;
@@ -60,8 +75,8 @@ function App(){
  ].filter(Boolean);
  const socials=[['Instagram',SHOP.instagram],['TikTok',SHOP.tiktok]].filter(([,u])=>u);
  const steps=[
-  ['Tap Order on WhatsApp','Your order message is already written.'],
-  ['Add your suburb or postcode','So we can work out delivery.'],
+  ['Tap Order on WhatsApp','Choose your quantity and review the subtotal.'],
+  ['Fill in your details','Add your name and delivery area, then send the prepared message in WhatsApp.'],
   ['We confirm the details','Stock, delivery cost and how to pay.'],
   ['Pay, then we deliver','Only once you have our payment instructions.']
  ];
@@ -94,7 +109,7 @@ function App(){
      <button aria-label="One more" disabled={qty===99} onClick={()=>setQty(q=>Math.min(99,q+1))}>+</button>
     </div>
    </div>
-   <a ref={cta} className="btn" href={orderLink(qty)}>Order on WhatsApp · R{SHOP.price*qty}</a>
+   <button ref={cta} className="btn orderButton" type="button" onClick={openOrder}>Order on WhatsApp · R{SHOP.price*qty}</button>
    <p className="note">Nothing is charged on this site. We confirm stock and delivery before you pay.</p>
    {facts.length>0&&<dl className="facts">{facts.map(([k,v])=><div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>}
    <a className="ask" href={askLink}>Have a question first? Message us</a>
@@ -127,8 +142,24 @@ function App(){
 
  <div className={'orderBar'+(showBar?' on':'')}>
   <span>R{SHOP.price*qty}<small> delivery extra</small></span>
-  <a className="btn" href={orderLink(qty)}>Order on WhatsApp</a>
+  <button className="btn" type="button" onClick={openOrder}>Order on WhatsApp</button>
  </div>
+
+ <dialog ref={orderDialog} className="orderDialog" aria-labelledby="order-title">
+  <form onSubmit={continueOrder}>
+   <h2 id="order-title">Your order details</h2>
+   <p>{qty} × {SHOP.name}<br/><strong>Subtotal R{SHOP.price*qty}</strong> · Delivery quoted separately.</p>
+   <label htmlFor="order-name">Full name</label>
+   <input id="order-name" name="name" autoComplete="name" maxLength={100} pattern={'.*\\S.*'} title="Enter your name" required autoFocus/>
+   <label htmlFor="order-area">Delivery suburb or postcode</label>
+   <input id="order-area" name="deliveryArea" maxLength={100} pattern={'.*\\S.*'} title="Enter your delivery suburb or postcode" required/>
+   <p className="note">You’ll review and send your message in WhatsApp. We’ll confirm stock and delivery before you pay.</p>
+   <div className="orderActions">
+    <button type="button" className="orderCancel" onClick={()=>orderDialog.current.close()}>Back</button>
+    <button type="submit" className="btn">Continue to WhatsApp</button>
+   </div>
+  </form>
+ </dialog>
  </>
 }
 createRoot(document.getElementById('root')).render(<App/>);
