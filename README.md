@@ -19,7 +19,7 @@ npm run dev
 ## Before taking orders
 
 - The price is R150 per bottle; delivery is additional and quoted individually.
-- Add the verified business WhatsApp number to `WHATSAPP` in `src/main.jsx` (international digits, no +).
+- The storefront opens a WhatsApp enquiry with quantity, subtotal, and a prompt for the customer’s suburb or postcode. Update `WHATSAPP_URL` in `src/main.jsx` if the business number changes.
 - Card payments are **not active**. Only use a verified provider-hosted payment flow; never add secret keys to the client.
 - Confirm bottle size, complete ingredient list, directions, delivery terms and returns/privacy policies before launch.
 - The storefront includes the current multipurpose oil photos in `public/`.
