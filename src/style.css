@@ -49,6 +49,15 @@ h1,h2{font-family:var(--serif);font-weight:500;line-height:1.1;margin:0}
 .orderActions{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
 .orderActions .btn{flex:1}
 .orderCancel{padding:0 16px;border:1px solid var(--green);border-radius:6px;background:transparent}
+.deliver{border:0;margin:22px 0 0;padding:0;min-inline-size:0}
+.deliver legend,.deliver label{font-weight:700}
+.meetupOption{display:flex;justify-content:space-between;gap:12px;padding:12px 16px;border:1px solid var(--green);border-radius:6px;background:#fff}
+.deliver input{display:block;width:100%;min-height:46px;margin-top:4px;padding:8px 10px;border:1px solid var(--muted);border-radius:6px;background:#fff;color:var(--ink);font:inherit;scroll-margin-bottom:84px}
+.orderError{color:#9a2d1f;font-size:15px;margin:8px 0 0}
+.sum{margin:20px 0 14px}
+.sum div{display:flex;justify-content:space-between;gap:12px;padding:6px 0}
+.sum dd{margin:0}
+.sum .tot{border-top:1px solid var(--line);padding-top:12px;font-weight:700;font-size:20px}
 .note{font-size:14px;color:var(--muted);margin:12px 0 0}
 .facts{margin:32px 0 0;border-top:1px solid var(--line)}
 .facts div{display:grid;grid-template-columns:140px 1fr;gap:16px;padding:14px 0;border-bottom:1px solid var(--line)}

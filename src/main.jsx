@@ -6,6 +6,7 @@ import './style.css';
 const SHOP={
  name:'Greenery Veracious © Multipurpose Oil',
  price:150,
+ meetupFee:50,
  whatsapp:'27693015439',
  phoneDisplay:'069 301 5439',
  size:'',                                   // e.g. '100 ml'
@@ -24,15 +25,18 @@ const photos=[
  {src:'/oil-in-hand.webp',label:'In hand',alt:'Greenery Veracious oil held in a hand with a blush-pink manicure'}
 ];
 const chat=text=>`https://wa.me/${SHOP.whatsapp}?text=${encodeURIComponent(text)}`;
-const orderLink=(qty,{name,phone,email,address})=>chat([
+const orderLink=({qty,subtotal,total,suburb,name,phone,email,address})=>chat([
  'Hello Greenery Veracious! I’d like to enquire about an order.',
  `${qty} × ${SHOP.name}`,
- `Product subtotal: R${qty*SHOP.price} (delivery excluded)`,
+ `Product subtotal: R${subtotal}`,
+ `Durban meet-up: R${SHOP.meetupFee}`,
+ `Total: R${total}`,
+ `Meet-up suburb: ${suburb}`,
  `Name: ${name}`,
  `Phone: ${phone}`,
  `Email: ${email}`,
  `Delivery address:\n${address}`,
- 'Please confirm stock, delivery cost and payment instructions.'
+ 'Please confirm stock, the meet-up location and payment instructions.'
 ].join('\n'));
 const askLink=chat('Hello Greenery Veracious! I have a question about the multipurpose oil: ');
 
@@ -40,8 +44,18 @@ function App(){
  const [qty,setQty]=useState(1),[shot,setShot]=useState(0),[showBar,setShowBar]=useState(false);
  const cta=useRef(null);
  const orderDialog=useRef(null);
+ const suburbField=useRef(null);
+ const [suburb,setSuburb]=useState('');
+ const [showSuburbError,setShowSuburbError]=useState(false);
+ const subtotal=qty*SHOP.price;
+ const total=subtotal+SHOP.meetupFee;
 
  function openOrder(){
+  if(!suburb.trim()){
+   setShowSuburbError(true);
+   suburbField.current.focus();
+   return;
+  }
   orderDialog.current.showModal();
  }
 
@@ -56,7 +70,8 @@ function App(){
    field.reportValidity();
    return;
   }
-  window.location.assign(orderLink(qty,{
+  window.location.assign(orderLink({
+   qty,subtotal,total,suburb:suburb.trim(),
    name:details.get('name').trim(),
    phone:details.get('phone').trim(),
    email:details.get('email').trim(),
@@ -81,17 +96,17 @@ function App(){
   ...Object.entries(SHOP.directions).map(([k,v])=>['Use on '+k.toLowerCase(),v])
  ].filter(([,v])=>v);
  const faqs=[
-  ['How much is delivery?','Delivery is quoted separately based on your address. We’ll confirm the cost in WhatsApp before you pay.'],
+  ['How much is a Durban meet-up?',`A Durban meet-up costs R${SHOP.meetupFee}. Enter your suburb and we’ll agree on a meeting spot in WhatsApp before you pay.`],
   SHOP.deliveryTime&&['How long does delivery take?',SHOP.deliveryTime],
-  ['When do I pay?',('Wait until we’ve confirmed stock, delivery cost and payment instructions in WhatsApp. '+SHOP.payment).trim()],
+  ['When do I pay?',('Wait until we’ve confirmed stock, the meet-up location and payment instructions in WhatsApp. '+SHOP.payment).trim()],
   SHOP.returns&&['What if something goes wrong?',SHOP.returns]
  ].filter(Boolean);
  const socials=[['Instagram',SHOP.instagram],['TikTok',SHOP.tiktok]].filter(([,u])=>u);
  const steps=[
-  ['Tap Order on WhatsApp','Choose your quantity and review the subtotal.'],
+  ['Choose your quantity','Enter your suburb and review the total with the Durban meet-up fee.'],
   ['Fill in your details','Add your name, contact details and full delivery address, then send the prepared message in WhatsApp.'],
-  ['We confirm the details','Stock, delivery cost and how to pay.'],
-  ['Pay, then we deliver','Only once you have our payment instructions.']
+  ['We confirm the details','We’ll confirm stock, the meeting spot and how to pay.'],
+  ['Pay, then collect','Meet us at the agreed spot after we confirm payment.']
  ];
 
  return <>
@@ -114,7 +129,7 @@ function App(){
   <div className="info">
    <h1>One oil for face, body and hair.</h1>
    <p className="lede">{SHOP.name}. A multipurpose beauty oil for your face, body and hair routine.</p>
-   <p className="price">R{SHOP.price} <span>per bottle. Delivery quoted separately.</span></p>
+   <p className="price">R{SHOP.price} <span>per bottle</span></p>
    <div className="qty"><span id="qlabel">Quantity</span>
     <div className="stepper" role="group" aria-labelledby="qlabel">
      <button aria-label="One fewer" disabled={qty===1} onClick={()=>setQty(q=>Math.max(1,q-1))}>−</button>
@@ -122,8 +137,23 @@ function App(){
      <button aria-label="One more" disabled={qty===99} onClick={()=>setQty(q=>Math.min(99,q+1))}>+</button>
     </div>
    </div>
-   <button ref={cta} className="btn orderButton" type="button" onClick={openOrder}>Order on WhatsApp · R{SHOP.price*qty}</button>
-   <p className="note">Nothing is charged on this site. We confirm stock and delivery before you pay.</p>
+   <fieldset className="deliver">
+    <legend>Delivery option</legend>
+    <p className="meetupOption"><strong>Durban meet-up</strong><strong>R{SHOP.meetupFee}</strong></p>
+    <label htmlFor="meetup-suburb">Your suburb</label>
+    <input ref={suburbField} id="meetup-suburb" autoComplete="address-level3" maxLength={100} required value={suburb}
+     onChange={event=>{setSuburb(event.target.value);setShowSuburbError(false)}}
+     aria-invalid={showSuburbError||undefined} aria-describedby={showSuburbError?'meetup-help meetup-error':'meetup-help'}/>
+    <p className="note" id="meetup-help">We’ll agree on a meeting spot in WhatsApp.</p>
+    {showSuburbError&&<p className="orderError" id="meetup-error" role="alert">Enter your suburb to continue.</p>}
+   </fieldset>
+   <dl className="sum" aria-live="polite">
+    <div><dt>{qty} × bottle</dt><dd>R{subtotal}</dd></div>
+    <div><dt>Durban meet-up</dt><dd>R{SHOP.meetupFee}</dd></div>
+    <div className="tot"><dt>Total</dt><dd>R{total}</dd></div>
+   </dl>
+   <button ref={cta} className="btn orderButton" type="button" onClick={openOrder}>Order on WhatsApp · R{total}</button>
+   <p className="note">We’ll confirm stock, the meet-up location and payment details in WhatsApp.</p>
    {facts.length>0&&<dl className="facts">{facts.map(([k,v])=><div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>}
    <a className="ask" href={askLink}>Have a question first? Message us</a>
   </div>
@@ -154,14 +184,14 @@ function App(){
  </div></footer>
 
  <div className={'orderBar'+(showBar?' on':'')}>
-  <span>R{SHOP.price*qty}<small> delivery extra</small></span>
-  <button className="btn" type="button" onClick={openOrder}>Order on WhatsApp</button>
+  <span>R{total}<small>incl. meet-up</small></span>
+  <button className="btn" type="button" onClick={openOrder}>{suburb.trim()?'Order on WhatsApp':'Choose delivery'}</button>
  </div>
 
  <dialog ref={orderDialog} className="orderDialog" aria-labelledby="order-title">
   <form onSubmit={continueOrder}>
    <h2 id="order-title">Your order details</h2>
-   <p>{qty} × {SHOP.name}<br/><strong>Subtotal R{SHOP.price*qty}</strong> · Delivery quoted separately.</p>
+   <p>{qty} × {SHOP.name}<br/>R{subtotal} + R{SHOP.meetupFee} Durban meet-up<br/><strong>Total R{total}</strong></p>
    <label htmlFor="order-name">Full name</label>
    <input id="order-name" name="name" autoComplete="name" maxLength={100} pattern={'.*\\S.*'} title="Enter your name" required autoFocus/>
    <label htmlFor="order-phone">Phone number</label>
@@ -171,7 +201,7 @@ function App(){
    <label htmlFor="order-address">Full delivery address</label>
    <textarea id="order-address" name="address" autoComplete="street-address" rows={3} maxLength={300} aria-describedby="address-help" onInput={event=>event.currentTarget.setCustomValidity('')} required/>
    <p id="address-help" className="note">Include the street number and name, unit or complex if applicable, suburb, city and postcode.</p>
-   <p className="note">You’ll review and send your message in WhatsApp. We’ll confirm stock and delivery before you pay.</p>
+   <p className="note">You’ll review and send your message in WhatsApp. We’ll confirm stock and the meet-up location before you pay.</p>
    <div className="orderActions">
     <button type="button" className="orderCancel" onClick={()=>orderDialog.current.close()}>Back</button>
     <button type="submit" className="btn">Continue to WhatsApp</button>
