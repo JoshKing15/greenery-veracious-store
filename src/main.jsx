@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import './style.css';
 const PRICE=150;
-const PRODUCT_NAME="Greenery Veracious Multipurpose Oil";
+const PRODUCT_NAME="Greenery Veracious © Multipurpose Oil";
 const WHATSAPP_URL='https://wa.me/27693015439';
 const images={hero:'/oil-studio.webp',bottles:'/oil-studio-trio.webp',hand:'/oil-in-hand.webp'};
 
@@ -24,7 +24,7 @@ function App(){
  const orderLabel=`Order on WhatsApp · R${PRICE*quantity}`;
  return <><div className="announcement">DURBAN-BASED BEAUTY • NATIONWIDE DELIVERY ENQUIRIES</div><header className="header"><a className="brand" href="#"><span className="brandmark">✺</span><span>GREENERY<br/><b>VERACIOUS</b></span></a><nav><a href="#story">Our Story</a><a href="#shop">Shop</a><a href="#delivery">Delivery</a></nav></header>
  <main><section className="hero">
- <div className="heroText"><p className="eyebrow">GREENERY VERACIOUS MULTIPURPOSE OIL</p><h1>One oil for <em>face, body and hair.</em></h1>
+ <div className="heroText"><p className="eyebrow">GREENERY VERACIOUS © MULTIPURPOSE OIL</p><h1>One oil for <em>face, body and hair.</em></h1>
  <p className="heroPrice"><strong>R{PRICE} per bottle</strong><br/>Delivery quoted separately.</p>
  <a className="primary" href={whatsappOrder}>{orderLabel} <span aria-hidden="true">↗</span></a>
  <a className="heroShopLink" href="#shop">See product photos and quantities</a></div>
