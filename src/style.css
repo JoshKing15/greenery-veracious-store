@@ -44,7 +44,8 @@ h1,h2{font-family:var(--serif);font-weight:500;line-height:1.1;margin:0}
 .orderDialog{width:min(460px,calc(100% - 32px));max-height:calc(100dvh - 32px);padding:clamp(18px,5vw,30px);border:1px solid var(--line);border-radius:8px;background:var(--cream);color:var(--ink)}
 .orderDialog::backdrop{background:rgb(15 35 25 / 65%)}
 .orderDialog label{display:block;margin:14px 0 4px;font-weight:700}
-.orderDialog input{width:100%;min-height:46px;padding:8px 10px;border:1px solid var(--muted);border-radius:6px;background:#fff;color:var(--ink);font:inherit}
+.orderDialog input,.orderDialog textarea{display:block;width:100%;min-height:46px;padding:8px 10px;border:1px solid var(--muted);border-radius:6px;background:#fff;color:var(--ink);font:inherit}
+.orderDialog textarea{resize:vertical}
 .orderActions{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
 .orderActions .btn{flex:1}
 .orderCancel{padding:0 16px;border:1px solid var(--green);border-radius:6px;background:transparent}

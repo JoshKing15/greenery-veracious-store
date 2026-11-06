@@ -24,12 +24,14 @@ const photos=[
  {src:'/oil-in-hand.webp',label:'In hand',alt:'Greenery Veracious oil held in a hand with a blush-pink manicure'}
 ];
 const chat=text=>`https://wa.me/${SHOP.whatsapp}?text=${encodeURIComponent(text)}`;
-const orderLink=(qty,name,deliveryArea)=>chat([
+const orderLink=(qty,{name,phone,email,address})=>chat([
  'Hello Greenery Veracious! I’d like to enquire about an order.',
  `${qty} × ${SHOP.name}`,
  `Product subtotal: R${qty*SHOP.price} (delivery excluded)`,
  `Name: ${name}`,
- `Delivery suburb or postcode: ${deliveryArea}`,
+ `Phone: ${phone}`,
+ `Email: ${email}`,
+ `Delivery address:\n${address}`,
  'Please confirm stock, delivery cost and payment instructions.'
 ].join('\n'));
 const askLink=chat('Hello Greenery Veracious! I have a question about the multipurpose oil: ');
@@ -45,10 +47,21 @@ function App(){
 
  function continueOrder(event){
   event.preventDefault();
-  const details=new FormData(event.currentTarget);
-  const name=details.get('name').trim();
-  const deliveryArea=details.get('deliveryArea').trim();
-  window.location.assign(orderLink(qty,name,deliveryArea));
+  const form=event.currentTarget;
+  const details=new FormData(form);
+  const address=details.get('address').trim();
+  if(!address){
+   const field=form.elements.namedItem('address');
+   field.setCustomValidity('Enter your full delivery address.');
+   field.reportValidity();
+   return;
+  }
+  window.location.assign(orderLink(qty,{
+   name:details.get('name').trim(),
+   phone:details.get('phone').trim(),
+   email:details.get('email').trim(),
+   address
+  }));
  }
 
  useEffect(()=>{
@@ -68,7 +81,7 @@ function App(){
   ...Object.entries(SHOP.directions).map(([k,v])=>['Use on '+k.toLowerCase(),v])
  ].filter(([,v])=>v);
  const faqs=[
-  ['How much is delivery?','It depends on where you are, so we quote it separately. Send your suburb or postcode and we’ll reply with the cost before you pay.'],
+  ['How much is delivery?','Delivery is quoted separately based on your address. We’ll confirm the cost in WhatsApp before you pay.'],
   SHOP.deliveryTime&&['How long does delivery take?',SHOP.deliveryTime],
   ['When do I pay?',('Wait until we’ve confirmed stock, delivery cost and payment instructions in WhatsApp. '+SHOP.payment).trim()],
   SHOP.returns&&['What if something goes wrong?',SHOP.returns]
@@ -76,7 +89,7 @@ function App(){
  const socials=[['Instagram',SHOP.instagram],['TikTok',SHOP.tiktok]].filter(([,u])=>u);
  const steps=[
   ['Tap Order on WhatsApp','Choose your quantity and review the subtotal.'],
-  ['Fill in your details','Add your name and delivery area, then send the prepared message in WhatsApp.'],
+  ['Fill in your details','Add your name, contact details and full delivery address, then send the prepared message in WhatsApp.'],
   ['We confirm the details','Stock, delivery cost and how to pay.'],
   ['Pay, then we deliver','Only once you have our payment instructions.']
  ];
@@ -151,8 +164,13 @@ function App(){
    <p>{qty} × {SHOP.name}<br/><strong>Subtotal R{SHOP.price*qty}</strong> · Delivery quoted separately.</p>
    <label htmlFor="order-name">Full name</label>
    <input id="order-name" name="name" autoComplete="name" maxLength={100} pattern={'.*\\S.*'} title="Enter your name" required autoFocus/>
-   <label htmlFor="order-area">Delivery suburb or postcode</label>
-   <input id="order-area" name="deliveryArea" maxLength={100} pattern={'.*\\S.*'} title="Enter your delivery suburb or postcode" required/>
+   <label htmlFor="order-phone">Phone number</label>
+   <input id="order-phone" name="phone" type="tel" autoComplete="tel" maxLength={32} pattern={'\\+?(?:[ .\\(\\)\\-]*[0-9]){7,15}[ .\\(\\)\\-]*'} title="Enter a phone number with 7 to 15 digits, including any area code." required/>
+   <label htmlFor="order-email">Email address</label>
+   <input id="order-email" name="email" type="email" autoComplete="email" maxLength={254} required/>
+   <label htmlFor="order-address">Full delivery address</label>
+   <textarea id="order-address" name="address" autoComplete="street-address" rows={3} maxLength={300} aria-describedby="address-help" onInput={event=>event.currentTarget.setCustomValidity('')} required/>
+   <p id="address-help" className="note">Include the street number and name, unit or complex if applicable, suburb, city and postcode.</p>
    <p className="note">You’ll review and send your message in WhatsApp. We’ll confirm stock and delivery before you pay.</p>
    <div className="orderActions">
     <button type="button" className="orderCancel" onClick={()=>orderDialog.current.close()}>Back</button>
