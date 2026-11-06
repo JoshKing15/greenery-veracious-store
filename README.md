@@ -25,4 +25,4 @@ npm run dev
 - The storefront includes the current multipurpose oil photos in `public/`.
 - Avoid unsubstantiated medical claims about skin conditions.
 
-This is a static storefront with a client-side shopping bag and WhatsApp enquiry flow, not a payment backend or order database.
+This is a static storefront with a direct WhatsApp enquiry flow.
