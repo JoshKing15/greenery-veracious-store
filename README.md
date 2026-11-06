@@ -22,7 +22,7 @@ npm run dev
 - Add the verified business WhatsApp number to `WHATSAPP` in `src/main.jsx` (international digits, no +).
 - Card payments are **not active**. Only use a verified provider-hosted payment flow; never add secret keys to the client.
 - Confirm bottle size, complete ingredient list, directions, delivery terms and returns/privacy policies before launch.
-- Add the provided images to `public/` with filenames: `founder-product.png`, `current-bottles.png`, `bottles-closeup.png`, `product-in-hand.png`, `brand-logo.png`.
+- The storefront includes the current multipurpose oil photos in `public/`.
 - Avoid unsubstantiated medical claims about skin conditions.
 
 This is a static storefront with a client-side shopping bag and WhatsApp enquiry flow, not a payment backend or order database.
